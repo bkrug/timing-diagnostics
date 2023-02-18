@@ -43,9 +43,11 @@ BEGIN
        LWPI WS
        LI   R10,STACK
 *
+       LIMI 0
+*
 * Set to Text Mode
 *
-       LI   R0,>01D0
+       LI   R0,>01F0
        BL   @VDPREG
        LI   R0,>07FD
        BL   @VDPREG       
@@ -58,7 +60,7 @@ BEGIN
 *
        BL   @DSPINT
 *
-* Test Number-to-ASCII conversion
+* Display CRU ticks for 60 VDP interrupts
 *
        LI   R0,17
        MOV  R0,@PRVTIM
@@ -67,6 +69,15 @@ BEGIN
        CLR  @CURINT
 *
 VDPLP
+* Let R0 = most recently read VDP time
+       MOVB @VINTTM,R0
+* Turn on VDP interrupts
+       LIMI 2
+* Wait for VDP interupt
+WAITLP CB   @VINTTM,R0
+       JEQ  WAITLP
+* Turn off interrupts so we can write to VDP
+       LIMI 0
 * Display current interrupt
        INC  @CURINT
        MOV  @CURINT,R0
