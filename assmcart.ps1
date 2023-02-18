@@ -7,7 +7,7 @@
 write-host 'Creating Cartridge'
 
 $fileList = `
-    'VAR', 'MAIN', 'CPUADR', 'DISPLAY', 'GROM', 'VDP'
+    'VAR', 'MAIN', 'DISPLAY', 'GROM', 'VDP', 'CART'
 
 #Deleting old work files
 write-host 'Deleting old work files'
@@ -41,11 +41,12 @@ ForEach($file in $fileList) {
 write-host 'Creating bank 0 of cartridge'
 $outputCartridgeFile = 'timeDiagnostic.C.bin'
 xas99.py -b -a ">6000" -o $outputCartridgeFile -l `
-    VAR.obj `
+    CART.obj `
     MAIN.obj `
     DISPLAY.obj `
     GROM.obj `
-    VDP.obj
+    VDP.obj `
+    VAR.obj
 
 #Create .rpk file for MAME
 $zipFileName = ".\TimeDiagnostic.zip"
