@@ -1,7 +1,7 @@
        DEF  BEGIN
 *
        REF  STACK,WS                        Ref from VAR
-       REF  DECNUM                          "
+       REF  DECNUM,PRVTIM,DSPPOS            "
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -28,6 +28,7 @@ P1MSGE
 * Addresses
 *
        COPY 'CPUADR.asm'
+ROWLNG EQU  40
 
 *
 * Header Text
@@ -56,14 +57,35 @@ BEGIN
 *
        BL   @DSPINT
 *
-* Test Number-to-ASCII convertion
+* Test Number-to-ASCII conversion
 *
-       LI   R0,48215
+       LI   R0,17
+       MOV  R0,@PRVTIM
+       LI   R0,4*40+2
+       MOV  R0,@DSPPOS
+*
+VDPLP  LI   R0,7
+       A    @PRVTIM,R0
+       MOV  R0,@PRVTIM
        BL   @NUMASC
-       LI   R0,5*40+7
+*
+       MOV  @DSPPOS,R0
        BL   @VDPADR
        LI   R0,DECNUM
        LI   R1,5
        BL   @VDPWRT
+*
+       MOV  @DSPPOS,R0
+       AI   R0,ROWLNG
+       CI   R0,24*40
+       JL   VDP1
+* Is this third column?
+       CI   R0,24*40+26
+       JH   JMP
+* No, next Colum
+       AI   R0,-20*40+13
+       JMP  VDP1
+VDP1   MOV  R0,@DSPPOS
+       JMP  VDPLP
 JMP    JMP  JMP
        END

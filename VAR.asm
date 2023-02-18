@@ -1,6 +1,6 @@
        DEF  STACK,WS
 *
-       DEF  PRVTIM,DECNUM
+       DEF  PRVTIM,DECNUM,DSPPOS
 *
        DEF  LBR0,LBR1,LBR2,LBR3,LBR4
        DEF  LBR5,LBR6,LBR7,LBR8,LBR9
@@ -19,6 +19,10 @@ STACK
 * Previously read time from CRU timer
 *
 PRVTIM BSS  2
+*
+* Next Display position
+*
+DSPPOS BSS  2
 *
 * Space for converting value to decimal number string
 *
