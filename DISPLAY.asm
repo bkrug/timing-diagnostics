@@ -1,18 +1,21 @@
-       DEF  DSPINT,DSPENV
+       DEF  DSPINT,NUMASC
 *
        REF  VDPADR,VDPWRT                   Ref from VDP
+       REF  DECNUM                          Ref from VAR
 
-HEAD1  TEXT 'Below is the number of CRU ticks '
-       TEXT 'per VDP interrupt.'
-HEAD2  TEXT 'Expect 782 ticks in 60hz region and '
-       TEXT '938 ticks in 50hz region.'
+HEAD1  TEXT 'Below is the number of CRU ticks per'
+HEAD2  TEXT 'VDP interrupt.'
+HEAD3  TEXT 'Expect 782 ticks in 60hz region and'
+HEAD4  TEXT '938 ticks in 50hz region.'
 HEAD0
        EVEN
 
 ROWLNG EQU  40
+TEN    DATA 10
+CHRZRO BYTE '0',0
 
 * Header above each menu
-MHEAD  DATA HEAD1,HEAD2
+MHEAD  DATA HEAD1,HEAD2,HEAD3,HEAD4
 MHEAD0 DATA HEAD0
 
        COPY 'CPUADR.asm'
@@ -65,4 +68,29 @@ MSGLP  AI   R4,ROWLNG
        JL   MSGLP
 * Yes, return
        MOV  *R10+,R11
+       RT
+
+*
+* Private Method:
+* Convert a 16-bit number to ASCII decimal number
+* Ouput is in DECNUM
+*
+* Input:
+*   R0 - Number to convert
+* Ouput:
+* 
+NUMASC
+       CLR  R1
+       MOV  R0,R2
+       LI   R3,DECNUM
+       AI   R3,4
+DSPN1  DIV  @TEN,R1
+       SLA  R2,8
+       AB   @CHRZRO,R2
+       MOVB R2,*R3
+       DEC  R3
+       MOV  R1,R2
+       CLR  R1
+       CI   R3,DECNUM
+       JHE  DSPN1
        RT

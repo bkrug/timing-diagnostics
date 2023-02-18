@@ -1,9 +1,10 @@
        DEF  BEGIN
 *
        REF  STACK,WS                        Ref from VAR
+       REF  DECNUM                          "
        REF  GROMCR                          Ref from GROM
-       REF  DSPINT                          Ref from DISPLAY
-       REF  VDPREG                          Ref from VDP
+       REF  DSPINT,NUMASC                   Ref from DISPLAY
+       REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
 
 ********@*****@*********************@**************************
 *--------------------------------------------------------------
@@ -54,5 +55,15 @@ BEGIN
 * Display Header
 *
        BL   @DSPINT
+*
+* Test Number-to-ASCII convertion
+*
+       LI   R0,48215
+       BL   @NUMASC
+       LI   R0,5*40+7
+       BL   @VDPADR
+       LI   R0,DECNUM
+       LI   R1,5
+       BL   @VDPWRT
 JMP    JMP  JMP
        END
