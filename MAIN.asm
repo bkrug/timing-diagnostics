@@ -6,9 +6,6 @@
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
 
-SPACE  TEXT  ' '
-       EVEN
-       
 *
 * Addresses
 *
@@ -136,3 +133,6 @@ GETTIM CLR  R12
        SRL  R2,1        Get rid of mode bit
        ANDI R2,>3FFF
        RT
+
+SPACE  TEXT  ' '
+       EVEN

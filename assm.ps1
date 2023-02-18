@@ -38,7 +38,7 @@ ForEach($file in $fileList) {
 }
 
 #Link object files into cartridge
-write-host 'Creating bank 0 of cartridge'
+write-host 'Creating cartridge'
 $outputCartridgeFile = 'timeDiagnostic.C.bin'
 xas99.py -b -a ">6000" -o $outputCartridgeFile -l `
     CART.obj `
@@ -55,6 +55,22 @@ compress-archive -Path ".\layout.xml",$outputCartridgeFile $zipFileName -compres
 if (Test-Path $rpkFileName) { Remove-Item $rpkFileName }
 Rename-Item $zipFileName $rpkFileName
 
+#Link object files into E/A option 5 program
+write-host 'Creating E/A option 5 program'
+$outputEA5program = 'timeDiagnostic.program'
+xas99.py -i -o $outputEA5program -l `
+    MAIN.obj `
+    DISPLAY.obj `
+    GROM.obj `
+    VDP.obj `
+    VAR.obj
+
+#Create disk image
+write-host 'Creating disk image'
+$diskImage = 'timeDiagnostic.dsk'
+xdm99.py -X sssd $diskImage
+xdm99.py $diskImage -a $outputEA5program -f PROGRAM
+
 #Delete work files
 write-host 'Deleting work files'
 ForEach($file in $fileList) {
@@ -63,3 +79,4 @@ ForEach($file in $fileList) {
     Remove-Item $objFile
     Remove-Item $lstFile
 }
+Remove-Item $outputEA5program
