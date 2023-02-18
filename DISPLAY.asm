@@ -78,6 +78,7 @@ MSGLP  AI   R4,ROWLNG
 * Input:
 *   R0 - Number to convert
 * Ouput:
+*   R1,R2,R3
 * 
 NUMASC
        CLR  R1

@@ -60,6 +60,10 @@ BEGIN
 *
        BL   @DSPINT
 *
+* Init Timer
+*
+       BL   @INTTIM 
+*
 * Display CRU ticks for 60 VDP interrupts
 *
        LI   R0,17
@@ -68,6 +72,9 @@ BEGIN
        MOV  R0,@DSPPOS
        CLR  @CURINT
 *
+* Record CRU Timer value
+       BL   @GETTIM
+       MOV  R2,@PRVTIM
 VDPLP
 * Let R0 = most recently read VDP time
        MOVB @VINTTM,R0
@@ -93,10 +100,12 @@ WAITLP CB   @VINTTM,R0
        MOVB @SPACE,@VDPWD
        NOP
        MOVB @SPACE,@VDPWD
-* Display meaningless number
-       LI   R0,7
-       A    @PRVTIM,R0
-       MOV  R0,@PRVTIM
+* Display ticks since last interrupt
+       BL   @GETTIM
+       MOV  @PRVTIM,R0
+       S    R2,R0
+       MOV  R2,@PRVTIM
+       ANDI R0,>3FFF
        BL   @NUMASC
 *
        LI   R0,DECNUM
@@ -116,4 +125,30 @@ WAITLP CB   @VINTTM,R0
 VDP1   MOV  R0,@DSPPOS
        JMP  VDPLP
 JMP    JMP  JMP
-       END
+
+*
+* Private Method:
+* Initialize Timer
+*
+INTTIM 
+       CLR  R12         CRU base of the TMS9901 
+       SBO  0           Enter timer mode 
+       LI   R1,>3FFF    Maximum value
+       INCT R12         Address of bit 1 
+       LDCR R1,14       Load value 
+       DECT R12         There is a faster way (see http://www.nouspikel.com/ti99/titechpages.htm) 
+       SBZ  0           Exit clock mode, start decrementer 
+       RT
+
+*
+* Private Method:
+* Get Time from CRU
+* Output: R2
+*
+GETTIM CLR  R12 
+       SBO  0           Enter timer mode 
+       STCR R2,15       Read current value (plus mode bit)
+       SBZ  0
+       SRL  R2,1        Get rid of mode bit
+       ANDI R2,>3FFF
+       RT
