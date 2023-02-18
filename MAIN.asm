@@ -1,7 +1,7 @@
        DEF  BEGIN
 *
        REF  STACK,WS                        Ref from VAR
-       REF  DECNUM,PRVTIM,DSPPOS            "
+       REF  DECNUM,PRVTIM,DSPPOS,CURINT     "
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -22,6 +22,7 @@ PROG1  DATA  0
        BYTE  P1MSGE-P1MSG
 P1MSG  TEXT  'TIMING DIAGNOSTIC'
 P1MSGE
+SPACE  TEXT  ' '
        EVEN
        
 *
@@ -63,18 +64,34 @@ BEGIN
        MOV  R0,@PRVTIM
        LI   R0,4*40+2
        MOV  R0,@DSPPOS
+       CLR  @CURINT
 *
-VDPLP  LI   R0,7
-       A    @PRVTIM,R0
-       MOV  R0,@PRVTIM
+VDPLP
+* Display current interrupt
+       INC  @CURINT
+       MOV  @CURINT,R0
        BL   @NUMASC
 *
        MOV  @DSPPOS,R0
        BL   @VDPADR
        LI   R0,DECNUM
+       AI   R0,3
+       LI   R1,2
+       BL   @VDPWRT
+* Write space
+       MOVB @SPACE,@VDPWD
+       NOP
+       MOVB @SPACE,@VDPWD
+* Display meaningless number
+       LI   R0,7
+       A    @PRVTIM,R0
+       MOV  R0,@PRVTIM
+       BL   @NUMASC
+*
+       LI   R0,DECNUM
        LI   R1,5
        BL   @VDPWRT
-*
+* Move DSPPOS to next row
        MOV  @DSPPOS,R0
        AI   R0,ROWLNG
        CI   R0,24*40
