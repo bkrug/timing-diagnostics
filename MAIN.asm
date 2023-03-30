@@ -52,6 +52,12 @@ BEGIN
        LI   R0,4*40+2
        MOV  R0,@DSPPOS
        CLR  @CURINT
+* Skip first VDP interrupt; it's too late to measure the full time.
+       LIMI 2
+       MOVB @VINTTM,R0
+FRSTLP CB   @VINTTM,R0
+       JEQ  FRSTLP
+       LIMI 0
 *
 * Record CRU Timer value
        BL   @GETTIM
@@ -61,11 +67,14 @@ VDPLP
        MOVB @VINTTM,R0
 * Turn on VDP interrupts
        LIMI 2
-* Wait for VDP interupt
+* Wait for VDP interrupt
 WAITLP CB   @VINTTM,R0
        JEQ  WAITLP
 * Turn off interrupts so we can write to VDP
        LIMI 0
+* Let R9 = newly recorded time
+       BL   @GETTIM
+       MOV  R2,R9
 * Display current interrupt
        INC  @CURINT
        MOV  @CURINT,R0
@@ -82,10 +91,9 @@ WAITLP CB   @VINTTM,R0
        NOP
        MOVB @SPACE,@VDPWD
 * Display ticks since last interrupt
-       BL   @GETTIM
        MOV  @PRVTIM,R0
-       S    R2,R0
-       MOV  R2,@PRVTIM
+       S    R9,R0
+       MOV  R9,@PRVTIM
        ANDI R0,>3FFF
        BL   @NUMASC
 *
